@@ -96,6 +96,10 @@ thread_local! {
 #[proc_macro_attribute]
 #[proc_macro_error(assert_unwind_safe)]
 pub fn aoc_generator(args: pm::TokenStream, mut input: pm::TokenStream) -> pm::TokenStream {
+    if !cfg!(feature = "harness") {
+        return input;
+    }
+
     let dpn: types::DayPartName = syn::parse(args)
         .map_err(|e| {
             Diagnostic::from(e).help(
@@ -232,6 +236,10 @@ pub fn aoc_generator(args: pm::TokenStream, mut input: pm::TokenStream) -> pm::T
 #[proc_macro_attribute]
 #[proc_macro_error(assert_unwind_safe)]
 pub fn aoc(args: pm::TokenStream, mut input: pm::TokenStream) -> pm::TokenStream {
+    if !cfg!(feature = "harness") {
+        return input;
+    }
+
     let dpn: types::DayPartName = syn::parse(args)
         .map_err(|e| {
             Diagnostic::from(e).help(
@@ -356,6 +364,10 @@ pub fn aoc(args: pm::TokenStream, mut input: pm::TokenStream) -> pm::TokenStream
 #[proc_macro]
 #[proc_macro_error(assert_unwind_safe)]
 pub fn aoc_lib(args: pm::TokenStream) -> pm::TokenStream {
+    if !cfg!(feature = "harness") {
+        return pm::TokenStream::new();
+    }
+
     let gen_benches = if args.is_empty() {
         false
     } else {
@@ -572,9 +584,11 @@ pub fn aoc_lib(args: pm::TokenStream) -> pm::TokenStream {
 #[proc_macro]
 #[proc_macro_error(assert_unwind_safe)]
 pub fn aoc_year(input: pm::TokenStream) -> pm::TokenStream {
-    let Ok(pm2::TokenTree::Literal(year)) = pm2::TokenStream::from(input)
-        .into_iter()
-        .exactly_one()
+    if !cfg!(feature = "harness") {
+        return pm::TokenStream::new();
+    }
+
+    let Ok(pm2::TokenTree::Literal(year)) = pm2::TokenStream::from(input).into_iter().exactly_one()
     else {
         proc_macro_error::abort_call_site!("Parsing error."; help = "Use aoc_year!(2018).");
     };
@@ -610,6 +624,10 @@ pub fn aoc_year(input: pm::TokenStream) -> pm::TokenStream {
 #[proc_macro]
 #[proc_macro_error(assert_unwind_safe)]
 pub fn aoc_main(arg: pm::TokenStream) -> pm::TokenStream {
+    if !cfg!(feature = "harness") {
+        return pm::TokenStream::new();
+    }
+
     let lib_name = syn::parse_macro_input!(arg as syn::Ident);
     let main = include_str!("main_tpl.rs").to_string();
     let main = main.replace("#lib", &lib_name.to_string());
@@ -639,6 +657,10 @@ pub fn aoc_main(arg: pm::TokenStream) -> pm::TokenStream {
 #[proc_macro]
 #[proc_macro_error(assert_unwind_safe)]
 pub fn aoc_bench(arg: pm::TokenStream) -> pm::TokenStream {
+    if !cfg!(feature = "harness") {
+        return pm::TokenStream::new();
+    }
+
     let lib = syn::parse_macro_input!(arg as syn::Ident);
 
     let r = quote! {

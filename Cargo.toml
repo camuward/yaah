@@ -8,6 +8,10 @@ repository = "https://github.com/ithinuel/yaah"
 edition = "2021"
 license = "MIT"
 
+[features]
+default = ["harness"]
+harness = []
+
 [lib]
 proc-macro = true
 
